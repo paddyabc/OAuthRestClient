@@ -382,6 +382,7 @@ public class MainController implements Initializable {
 			try {
 				Tidy tidy = new Tidy();
 				tidy.setSmartIndent(true);
+				tidy.setForceOutput(true);
 				
 				ByteArrayInputStream inputStream = new ByteArrayInputStream(text.getBytes("UTF-8"));
 			    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
