@@ -54,9 +54,9 @@
     	<version>1.9.13</version>
     </dependency>
     <dependency>
-    	<groupId>net.sf.jtidy</groupId>
-    	<artifactId>jtidy</artifactId>
-    	<version>r938</version>
+    	<groupId>net.htmlparser.jericho</groupId>
+    	<artifactId>jericho-html</artifactId>
+    	<version>3.3</version>
     </dependency>
   </dependencies>
   <build>

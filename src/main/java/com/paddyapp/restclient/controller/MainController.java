@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
+import java.io.Writer;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Hashtable;
@@ -16,6 +17,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import net.htmlparser.jericho.Source;
+import net.htmlparser.jericho.SourceFormatter;
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 import oauth.signpost.http.HttpParameters;
@@ -34,7 +37,6 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.protocol.HttpCoreContext;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
-import org.w3c.tidy.Tidy;
 
 import com.paddyapp.restclient.App;
 import com.paddyapp.restclient.pojo.OAuthConfig;
@@ -380,17 +382,21 @@ public class MainController implements Initializable {
 		String text = responseBody.getText();
 		if(text.length() >0 ){
 			try {
-				Tidy tidy = new Tidy();
-				tidy.setSmartIndent(true);
-				tidy.setForceOutput(true);
-				
-				ByteArrayInputStream inputStream = new ByteArrayInputStream(text.getBytes("UTF-8"));
-			    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-			    tidy.parseDOM(inputStream, outputStream);
-			    
-			    String output = outputStream.toString();
-			    if(output.length() > 0)
-			    	responseBody.setText(outputStream.toString());
+//				Tidy tidy = new Tidy();
+//				tidy.setSmartIndent(true);
+//				tidy.setForceOutput(true);
+//				
+//				ByteArrayInputStream inputStream = new ByteArrayInputStream(text.getBytes("UTF-8"));
+//			    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+//			    tidy.parseDOM(inputStream, outputStream);
+//			    
+//			    String output = outputStream.toString();
+//			    if(output.length() > 0)
+//			    	responseBody.setText(outputStream.toString());
+				Source source = new Source(text);
+				SourceFormatter formatter = new SourceFormatter(source);
+				formatter.setIndentAllElements(true);
+				responseBody.setText(formatter.toString());
 			} catch (Exception e){
 				e.printStackTrace();
 				MainController.this.createMessage("Cannot parse the body as HTML", "Error");
