@@ -64,9 +64,9 @@
             </HBox>
          </top>
          <center>
-            <VBox maxHeight="1.7976931348623157E308" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
-               <children>
-                  <TabPane maxHeight="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+            <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" BorderPane.alignment="CENTER">
+              <items>
+                  <TabPane maxHeight="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE">
                     <tabs>
                       <Tab text="Method">
                         <content>
@@ -88,7 +88,7 @@
                            <content>
                               <VBox maxHeight="1.7976931348623157E308" prefHeight="200.0" prefWidth="100.0">
                                  <children>
-                                    <HBox prefHeight="100.0" prefWidth="200.0" VBox.vgrow="NEVER">
+                                    <HBox fillHeight="false" maxHeight="-Infinity" prefHeight="36.0" prefWidth="200.0" VBox.vgrow="NEVER">
                                        <children>
                                           <Label text="Content-type">
                                              <padding>
@@ -102,7 +102,7 @@
                                           </ChoiceBox>
                                        </children>
                                     </HBox>
-                                    <TextArea id="requestBody" fx:id="requestBody" editable="false" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+                                    <TextArea id="requestBody" fx:id="requestBody" editable="false" maxHeight="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
                                  </children>
                               </VBox>
                            </content>
@@ -111,7 +111,7 @@
                            <content>
                               <VBox maxHeight="1.7976931348623157E308" prefHeight="160.0" prefWidth="600.0">
                                  <children>
-                                    <HBox prefHeight="42.0" prefWidth="654.0" VBox.vgrow="NEVER">
+                                    <HBox fillHeight="false" maxHeight="-Infinity" prefHeight="36.0" prefWidth="654.0" VBox.vgrow="NEVER">
                                        <children>
                                           <Label text="Key">
                                              <HBox.margin>
@@ -167,7 +167,7 @@
                         </Tab>
                     </tabs>
                   </TabPane>
-                  <TabPane maxHeight="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                  <TabPane maxHeight="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE">
                     <tabs>
                       <Tab text="Response Header">
                            <content>
@@ -183,7 +183,15 @@
                         </Tab>
                       <Tab text="Response Body">
                            <content>
-                              <TextArea id="responseBody" fx:id="responseBody" editable="false" prefHeight="186.0" prefWidth="654.0" />
+                              <TextArea id="responseBody" fx:id="responseBody" editable="false" prefHeight="186.0" prefWidth="654.0">
+                                 <contextMenu>
+                                    <ContextMenu>
+                                      <items>
+                                        <MenuItem mnemonicParsing="false" onAction="#beautifyJSON" text="Beautify JSON" />
+                                          <MenuItem mnemonicParsing="false" onAction="#beautifyHTML" text="Beautify HTML" />
+                                      </items>
+                                    </ContextMenu>
+                                 </contextMenu></TextArea>
                            </content>
                         </Tab>
                         <Tab text="Request Header">
@@ -204,8 +212,8 @@
                         </Tab>
                     </tabs>
                   </TabPane>
-               </children>
-            </VBox>
+              </items>
+            </SplitPane>
          </center>
       </BorderPane>
    </children>

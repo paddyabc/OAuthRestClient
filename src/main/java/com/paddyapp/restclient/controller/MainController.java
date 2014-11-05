@@ -4,6 +4,8 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -30,6 +32,9 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.protocol.HttpCoreContext;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializationConfig;
+import org.w3c.tidy.Tidy;
 
 import com.paddyapp.restclient.App;
 import com.paddyapp.restclient.pojo.OAuthConfig;
@@ -165,11 +170,6 @@ public class MainController implements Initializable {
 							http.addHeader(key, headerMap.get(key).getValue());
 						}
 					}
-					
-					
-//					for(Header header: http.getAllHeaders()){
-//						finalReqHeader.add(header.getName() +": " + header.getValue());
-//					}
 					
 					sendHttpReqeuest(http);
 				}
@@ -359,6 +359,43 @@ public class MainController implements Initializable {
 			clpbrd.setContents (stringSelection, null);
 		}
 	}
+	
+	public void beautifyJSON(){
+		String text = responseBody.getText();
+		if(text.length() >0){
+			
+			try {
+				ObjectMapper mapper = new ObjectMapper();
+				mapper.configure(SerializationConfig.Feature.INDENT_OUTPUT, true);
+				String value = mapper.writeValueAsString(mapper.readTree(text));
+				responseBody.setText(value);
+			} catch (Exception e){
+				e.printStackTrace();
+				MainController.this.createMessage("Cannot parse the body as JSON", "Error");
+			}
+		}
+	}
+	
+	public void beautifyHTML(){
+		String text = responseBody.getText();
+		if(text.length() >0 ){
+			try {
+				Tidy tidy = new Tidy();
+				tidy.setSmartIndent(true);
+				
+				ByteArrayInputStream inputStream = new ByteArrayInputStream(text.getBytes("UTF-8"));
+			    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			    tidy.parseDOM(inputStream, outputStream);
+			    
+			    String output = outputStream.toString();
+			    if(output.length() > 0)
+			    	responseBody.setText(outputStream.toString());
+			} catch (Exception e){
+				e.printStackTrace();
+				MainController.this.createMessage("Cannot parse the body as HTML", "Error");
+			}
+		}
+	}
 
 	private void createMessage(String message, String title){
 		try{
@@ -380,6 +417,10 @@ public class MainController implements Initializable {
 		} catch (Exception e){
 			e.printStackTrace();
 		}
+	}
+	
+	public void onClose(){
+		this.backgroundPool.shutdown();
 	}
 	
 	private void sendHttpReqeuest(HttpRequestBase http){
@@ -437,7 +478,13 @@ public class MainController implements Initializable {
 					
 				} catch (Exception e){
 					e.printStackTrace();
-					MainController.this.createMessage(e.getMessage(), "Error");
+					Platform.runLater(new Runnable(){
+						@Override
+						public void run() {
+							MainController.this.createMessage(e.getMessage(), "Error");
+						}
+					});
+					
 				} finally{
 					Platform.runLater(new Runnable(){
 						@Override
