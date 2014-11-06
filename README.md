@@ -17,4 +17,4 @@ just double click it
 
 
 Latest Download:    
-http://files.parsetfss.com/6609f3eb-de2d-4421-b539-67961fcaab77/tfss-7ef1e056-0677-4ceb-8c16-1003c0156af5-oauthclient.jar
+http://files.parsetfss.com/6609f3eb-de2d-4421-b539-67961fcaab77/tfss-77f64fb0-a8ee-4a14-bf63-2a3091626dbf-oauthclient.jar
