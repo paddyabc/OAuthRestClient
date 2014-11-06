@@ -16,6 +16,8 @@ import java.util.ResourceBundle;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.htmlparser.jericho.Source;
 import net.htmlparser.jericho.SourceFormatter;
@@ -35,6 +37,7 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.protocol.HttpCoreContext;
+import org.apache.http.util.EntityUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 
@@ -71,6 +74,7 @@ public class MainController implements Initializable {
 	@FXML private TextField requestUrl;
 	@FXML private ToggleGroup requestMethod;
 	@FXML private ChoiceBox<String> contentType;
+	@FXML private ChoiceBox<String> charset;
 	@FXML private TableView<RequestHeader> headerTable;
 	@FXML private TextArea requestBody;
 	@FXML private TextArea responseBody;
@@ -102,9 +106,20 @@ public class MainController implements Initializable {
 		contentType.setItems(FXCollections.observableArrayList(
 				"text/plain",
 				"application/json",
-				"application/x-www-form-urlencoded"
+				"application/x-www-form-urlencoded",
+				"application/xml"
 		));
 		contentType.setValue("text/plain");
+		
+		charset.setItems(FXCollections.observableArrayList(
+				"UTF-8",
+				"US-ASCII",
+				"ISO-8859-1",
+				"ISO-8859-2",
+				"ISO-8859-3",
+				"ISO-8859-4"
+		));
+		charset.setValue("UTF-8");
 		
 		TableColumn<RequestHeader, String> keyCol = (TableColumn<RequestHeader, String>) headerTable.getColumns().get(0);
 		TableColumn<RequestHeader, String> valueCol = (TableColumn<RequestHeader, String>) headerTable.getColumns().get(1);
@@ -136,6 +151,8 @@ public class MainController implements Initializable {
 				} else if (method.equals("PUT")){
 					HttpPut put = new HttpPut(this.requestUrl.getText());
 					String type = contentType.getValue();
+					String character = charset.getValue();
+					type += "; charset=" + character;
 					put.addHeader("Content-type", type);
 					put.setEntity(new StringEntity(this.requestBody.getText()));
 					
@@ -144,6 +161,8 @@ public class MainController implements Initializable {
 					HttpPost post = new HttpPost(this.requestUrl.getText());
 					String type = contentType.getValue();
 					post.addHeader("Content-type", type);
+					String character = charset.getValue();
+					type += "; charset=" + character;
 					post.setEntity(new StringEntity(this.requestBody.getText()));
 					
 					http = post;
@@ -254,11 +273,13 @@ public class MainController implements Initializable {
 	public void disableBody(){
 		requestBody.setEditable(false);
 		contentType.setDisable(true);
+		charset.setDisable(true);
 	}
 	
 	public void enableBody(){
 		requestBody.setEditable(true);
 		contentType.setDisable(false);
+		charset.setDisable(false);
 	}
 	
 	public void addHeader(){
@@ -382,17 +403,6 @@ public class MainController implements Initializable {
 		String text = responseBody.getText();
 		if(text.length() >0 ){
 			try {
-//				Tidy tidy = new Tidy();
-//				tidy.setSmartIndent(true);
-//				tidy.setForceOutput(true);
-//				
-//				ByteArrayInputStream inputStream = new ByteArrayInputStream(text.getBytes("UTF-8"));
-//			    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-//			    tidy.parseDOM(inputStream, outputStream);
-//			    
-//			    String output = outputStream.toString();
-//			    if(output.length() > 0)
-//			    	responseBody.setText(outputStream.toString());
 				Source source = new Source(text);
 				SourceFormatter formatter = new SourceFormatter(source);
 				formatter.setIndentAllElements(true);
@@ -467,16 +477,20 @@ public class MainController implements Initializable {
 									responseList.add(header.getName() +": " + header.getValue());
 								}
 								
-								BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-								StringBuffer result = new StringBuffer();
-								String line = "";
-								while ((line = rd.readLine()) != null) {
-									result.append(line);
+								String encoding = "UTF8";
+								if(response.getEntity().getContentType() != null){
+									String contentType = response.getEntity().getContentType().getValue();
+									Pattern pattern = Pattern.compile("charset=([^;]+)");
+									Matcher matcher = pattern.matcher(contentType);
+									if (matcher.matches()){
+										encoding = matcher.group(1);
+									}
 								}
-								responseBody.setText(result.toString());
+								String content = EntityUtils.toString(response.getEntity(), encoding);
+								responseBody.setText(content);
 							} catch (Exception e){
 								e.printStackTrace();
-								MainController.this.createMessage(e.getMessage(), "Error");
+								MainController.this.createMessage("Cannot get the content from the provided url", "Error");
 							}
 							
 						}
