@@ -10,6 +10,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
@@ -52,6 +53,10 @@ public class App extends Application {
             // Show the scene containing the root layout.
             final Scene scene = new Scene(rootLayout);
             primaryStage.setScene(scene);
+            
+            primaryStage.getIcons().add(new Image("/images/rest-client-icon.png"));
+            
+            
             primaryStage.show();
         } catch (IOException e) {
             e.printStackTrace();
